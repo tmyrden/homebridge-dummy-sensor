@@ -16,12 +16,12 @@ Accessories can be defined following the schema formatting shown here:
     {
         "name": "Front Door Ajar",
         "type": "contact",
-        "accessory": "DummyContactSensor"
+        "accessory": "DummySensor"
     },
     {
         "name": "Back Door Ajar",
         "type": "leak",
-        "accessory": "DummyContactSensor"
+        "accessory": "DummySensor"
     }
 ]
 ```
@@ -30,7 +30,7 @@ Accessories can be defined following the schema formatting shown here:
 
 - `name`: The name of the sensor as it will appear in HomeKit.
 - `type`: Type of sensor (`contact` for contact sensor, `leak` for leak sensor).
-- `accessory`: Must be `"DummyContactSensor"`.
+- `accessory`: Must be `"DummySensor"`.
 
 ## Usage
 
