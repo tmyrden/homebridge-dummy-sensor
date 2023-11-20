@@ -1,0 +1,25 @@
+{
+    "pluginAlias": "DummySensor",
+    "pluginType": "accessory",
+    "singular": false,
+    "schema": {
+        "type": "object",
+        "properties": {
+            "name": {
+                "title": "Name",
+                "type": "string",
+                "required": true
+            },
+            "type": {
+                "title": "Type",
+                "type": "string",
+                "required": true,
+                "oneOf": [
+                    { "title": "Leak Sensor", "enum": ["leak"] },
+                    { "title": "Contact Sensor", "enum": ["contact"] }
+                ],
+                "description": "Select a sensor type to achieve different HomeKit notification behaviour."
+            }
+        }
+    }
+}
