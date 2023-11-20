@@ -6,7 +6,7 @@ module.exports = (api) => {
   api.registerAccessory('homebridge-dummy-sensor','DummySensor', DummySensor);
 };
 
-class DummyContactSensor {
+class DummySensor {
 
   constructor(log, config, api) {
       this.log = log;

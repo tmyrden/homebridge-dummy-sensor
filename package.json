@@ -1,6 +1,6 @@
 {
   "name": "homebridge-dummy-sensor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Dummy sensors for Homebridge: https://github.com/nfarina/homebridge",
   "license": "MIT",
   "keywords": [
