@@ -14,11 +14,18 @@
                 "title": "Type",
                 "type": "string",
                 "required": true,
+                "default": "contact",
                 "oneOf": [
                     { "title": "Leak Sensor", "enum": ["leak"] },
                     { "title": "Contact Sensor", "enum": ["contact"] }
                 ],
                 "description": "Select a sensor type to achieve different HomeKit notification behaviour."
+            },
+            "delay": {
+                "title": "Delay",
+                "type": "integer",
+                "required": false,
+                "description": "Delay between switch on & sensor triggered. Switching off will always change sensor state immediately."
             }
         }
     }

@@ -28,6 +28,8 @@ class DummySensor {
         forgiveParseErrors: true
       });
 
+      this.sensorType = config.type || 'contact';
+
       // Setup the Accessory Info Service
       this.informationService = new this.Service.AccessoryInformation();
       this.informationService
@@ -37,7 +39,7 @@ class DummySensor {
           .setCharacteristic(this.Characteristic.SerialNumber, 'Dummy-' + this.name.replace(/\s/g, '-'));
 
       // Setup the Sensor Service
-      if (config.type === 'leak') {
+      if (this.sensorType === 'leak') {
 
         // Setup Leak Sensor Service
         this.sensorService = new this.Service.LeakSensor(this.name);
@@ -56,7 +58,7 @@ class DummySensor {
       this.switchService.getCharacteristic(this.Characteristic.On)
         .onGet(this.handleSwitchStateGet.bind(this))
         .onSet(this.handleSwitchStateSet.bind(this));
-      this.switchService.setCharacteristic(this.Characteristic.On, this.isOn());
+      this.switchService.setCharacteristic(this.Characteristic.On, this.switchOn());
   }
 
   /**
@@ -66,20 +68,33 @@ class DummySensor {
     this.log.debug('Triggered SET On:', value);
 
     // Set value in Persistence Provider
-    this.storage.setItemSync(this.name, value);
+    this.storage.setItemSync(`${this.name}-switch`, value);
 
-    // Set the Sensor State
-    if (this.config.type === 'leak') {
-      this.sensorService.setCharacteristic(
-        this.Characteristic.LeakDetected,
-        this.handleLeakDetectedGet()
-      );
-    } else {
-      this.sensorService.setCharacteristic(
-        this.Characteristic.ContactSensorState,
-        this.handleContactSensorStateGet()
-      );
-    }
+    // Parse config delay to ensure int value
+    var delay = this.config.delay ? parseInt(this.config.delay, 10) : 0;
+
+    // Only delay sensor change when turning on, not off.
+    delay = value ? delay : 0;
+
+    clearTimeout(this.timer);
+    this.timer = setTimeout(function() {
+      this.log.debug('Sensor changed after delay (ms):', delay);
+
+      this.storage.setItemSync(`${this.name}-sensor`, value);
+
+      // Set the Sensor State
+      if (this.sensorType === 'leak') {
+        this.sensorService.setCharacteristic(
+          this.Characteristic.LeakDetected,
+          this.handleLeakDetectedGet()
+        );
+      } else {
+        this.sensorService.setCharacteristic(
+          this.Characteristic.ContactSensorState,
+          this.handleContactSensorStateGet()
+        );
+      }
+    }.bind(this), isNaN(delay) ? 0 : delay);
   }
 
   /**
@@ -90,7 +105,7 @@ class DummySensor {
   handleSwitchStateGet() {
     this.log.debug('Triggered GET On');
 
-    return this.isOn();
+    return this.switchOn();
   }
 
   /**
@@ -101,7 +116,7 @@ class DummySensor {
   handleLeakDetectedGet() {
     this.log.debug('Triggered GET LeakDetected');
 
-    return this.isOn() ? this.Characteristic.LeakDetected.LEAK_DETECTED : this.Characteristic.LeakDetected.LEAK_NOT_DETECTED;
+    return this.sensorOn() ? this.Characteristic.LeakDetected.LEAK_DETECTED : this.Characteristic.LeakDetected.LEAK_NOT_DETECTED;
   }
 
   /**
@@ -112,7 +127,7 @@ class DummySensor {
   handleContactSensorStateGet() {
     this.log.debug('Triggered GET ContactSensorState');
 
-    return this.isOn() ? this.Characteristic.ContactSensorState.CONTACT_NOT_DETECTED : this.Characteristic.ContactSensorState.CONTACT_DETECTED;
+    return this.sensorOn() ? this.Characteristic.ContactSensorState.CONTACT_NOT_DETECTED : this.Characteristic.ContactSensorState.CONTACT_DETECTED;
   }
 
   /**
@@ -129,16 +144,24 @@ class DummySensor {
   }
 
   /**
-   * Private function to get the current state of the accessory from the persistence provider
+   * Private function to get the current state of the switch from the persistence provider
    * 
-   * @returns Boolean representing the stored status of the accessory
+   * @returns Boolean representing the stored status of the switch
    */
-  isOn() {
-    let cachedState = this.storage.getItemSync(this.name);
-    if ((cachedState === undefined) || (cachedState === false)) {
-      return false;
-    } else {
-      return true;
-    }
+  switchOn() {
+    let cachedState = this.storage.getItemSync(`${this.name}-switch`);
+
+    return !!cachedState;
+  }
+
+  /**
+   * Private function to get the current state of the sensor from the persistence provider
+   * 
+   * @returns Boolean representing the stored status of the sensor
+   */
+  sensorOn() {
+    let cachedState = this.storage.getItemSync(`${this.name}-sensor`);
+
+    return !!cachedState;
   }
 }
