@@ -5,7 +5,7 @@
 ## Features
 
 - **Linked Switch-Sensor Mechanism**: Toggling the switch changes the sensor's state, integrating seamlessly with HomeKit's notification system.
-- **Customizable Sensor Types**: Choose between a contact sensor or a leak sensor, each with distinct notification behaviors in HomeKit.
+- **Customizable Sensor Types**: Choose between contact, leak, motion & occupancy sensors, each with distinct notification behaviors in HomeKit.
 - **Built-In Delay**: Program a delay between switch on and sensor triggering for additional customizability.
 
 ## Example Configuration
@@ -31,7 +31,7 @@ Accessories can be defined following the schema formatting shown here:
 ### Configuration Fields
 
 - `name`: The name of the sensor as it will appear in HomeKit.
-- `type`: Type of sensor (`contact` for contact sensor, `leak` for leak sensor).
+- `type`: Type of sensor (`contact` for contact sensor, `leak` for leak sensor, `motion` for motion sensor, `occupancy` for occupancy sensor).
 - `delay`: Delay between switch being turned on and sensor being tripped, in milliseconds.
 - `accessory`: Must be `"DummySensor"`.
 
@@ -41,6 +41,8 @@ Once configured, the plugin will create an accessory with both a switch and a se
 
 - **Contact Sensor**: Provides standard notifications.
 - **Leak Sensor**: Sends time-sensitive notifications, capable of breaking through any focus mode.
+- **Motion Sensor**: Provides standard notifications.
+- **Occupancy Sensor**: Provides standard notifications.
 
 ## Support
 

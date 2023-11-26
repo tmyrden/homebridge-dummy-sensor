@@ -38,19 +38,35 @@ class DummySensor {
           .setCharacteristic(this.Characteristic.FirmwareRevision, HomebridgeDummySensorVersion)
           .setCharacteristic(this.Characteristic.SerialNumber, 'Dummy-' + this.name.replace(/\s/g, '-'));
 
-      // Setup the Sensor Service
-      if (this.sensorType === 'leak') {
 
-        // Setup Leak Sensor Service
-        this.sensorService = new this.Service.LeakSensor(this.name);
-        this.sensorService.getCharacteristic(this.Characteristic.LeakDetected)
-          .onGet(this.handleLeakDetectedGet.bind(this));
-      } else {
+      switch (this.sensorType) {
+        case 'leak':
+          // Setup Leak Sensor Service
+          this.sensorService = new this.Service.LeakSensor(this.name);
+          this.sensorService.getCharacteristic(this.Characteristic.LeakDetected)
+            .onGet(this.handleLeakDetectedGet.bind(this));
+          break;
 
-        // Setup Contact Sensor Service
-        this.sensorService = new this.Service.ContactSensor(this.name);
-        this.sensorService.getCharacteristic(this.Characteristic.ContactSensorState)
-          .onGet(this.handleContactSensorStateGet.bind(this));
+        case 'occupancy':
+          // Setup Occupancy Sensor Service
+          this.sensorService = new this.Service.OccupancySensor(this.name);
+          this.sensorService.getCharacteristic(this.Characteristic.OccupancyDetected)
+            .onGet(this.handleOccupancyDetectedGet.bind(this));
+            break;
+
+        case 'motion':
+          // Setup Motion Sensor Service
+          this.sensorService = new this.Service.MotionSensor(this.name);
+          this.sensorService.getCharacteristic(this.Characteristic.MotionDetected)
+            .onGet(this.handleMotionDetectedGet.bind(this));
+          break;
+
+        case 'contact':
+        default:
+          // Setup Contact Sensor Service
+          this.sensorService = new this.Service.ContactSensor(this.name);
+          this.sensorService.getCharacteristic(this.Characteristic.ContactSensorState)
+            .onGet(this.handleContactSensorStateGet.bind(this));
       }
 
       // Setup the Switch Service
@@ -67,6 +83,11 @@ class DummySensor {
   handleSwitchStateSet(value) {
     this.log.debug('Triggered SET On:', value);
 
+    // Exit early if switch being set to existing value
+    if (this.switchOn() === value) {
+      return;
+    }
+
     // Set value in Persistence Provider
     this.storage.setItemSync(`${this.name}-switch`, value);
 
@@ -78,6 +99,11 @@ class DummySensor {
 
     clearTimeout(this.timer);
     this.timer = setTimeout(function() {
+      // Exit early if sensor being set to existing value
+      if (this.sensorOn() === value) {
+        return;
+      }
+
       this.log.debug('Sensor changed after delay (ms):', delay);
 
       this.storage.setItemSync(`${this.name}-sensor`, value);
@@ -117,6 +143,28 @@ class DummySensor {
     this.log.debug('Triggered GET LeakDetected');
 
     return this.sensorOn() ? this.Characteristic.LeakDetected.LEAK_DETECTED : this.Characteristic.LeakDetected.LEAK_NOT_DETECTED;
+  }
+
+  /**
+   * Handle requests to get the current value of the Sensor "Occupancy Detected" characteristic
+   * 
+   * @returns Characteristic.OccupancyDetected representing the "detected" or "not detected" states
+   */
+  handleOccupancyDetectedGet() {
+    this.log.debug('Triggered GET OccupancyDetected');
+
+    return this.sensorOn() ? this.Characteristic.OccupancyDetected.OCCUPANCY_DETECTED : this.Characteristic.LeakDetected.OCCUPANCY_NOT_DETECTED;
+  }
+  
+  /**
+   * Handle requests to get the current value of the Sensor "Motion Detected" characteristic
+   * 
+   * @returns Boolean representing the "detected" or "not detected" states
+   */
+  handleMotionDetectedGet() {
+    this.log.debug('Triggered GET MotionDetected');
+
+    return this.sensorOn();
   }
 
   /**
