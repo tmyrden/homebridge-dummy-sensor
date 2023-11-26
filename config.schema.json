@@ -17,7 +17,9 @@
                 "default": "contact",
                 "oneOf": [
                     { "title": "Leak Sensor", "enum": ["leak"] },
-                    { "title": "Contact Sensor", "enum": ["contact"] }
+                    { "title": "Contact Sensor", "enum": ["contact"] },
+                    { "title": "Occupancy Sensor", "enum": ["occupancy"] },
+                    { "title": "Motion Sensor", "enum": ["motion"] }
                 ],
                 "description": "Select a sensor type to achieve different HomeKit notification behaviour."
             },
