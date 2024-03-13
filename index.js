@@ -114,7 +114,12 @@ class DummySensor {
           this.Characteristic.LeakDetected,
           this.handleLeakDetectedGet()
         );
-      } else {
+      } else if (this.sensorType === 'motion') {
+        this.sensorService.setCharacteristic(
+          this.Characteristic.MotionDetected,
+          this.handleMotionDetectedGet()
+        );
+      }else {
         this.sensorService.setCharacteristic(
           this.Characteristic.ContactSensorState,
           this.handleContactSensorStateGet()
